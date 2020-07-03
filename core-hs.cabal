@@ -1,0 +1,127 @@
+cabal-version:       3.0
+name:                core
+version:             0.1.0.0
+synopsis:            SPJ tutorial
+description:         My notes and examples to the Implementing Functional Languages a tutorial by SPJ
+-- bug-reports:
+license:             MIT
+license-file:        LICENSE
+author:              Vasiliy Yorkin
+maintainer:          vasiliy.yorkin@gmail.com
+copyright:           2020 Vasiliy Yorkin
+-- category:
+build-type:          Simple
+extra-source-files:  README.md
+tested-with:         GHC == 8.8.3
+
+source-repository head
+  type:                git
+  location:            https://github.com/vyorkin/core-hs.git
+
+common base
+  build-depends:       base
+  default-language:    Haskell2010
+  default-extensions:  ConstraintKinds
+                       DeriveGeneric
+                       GeneralizedNewtypeDeriving
+                       InstanceSigs
+                       KindSignatures
+                       LambdaCase
+                       OverloadedStrings
+                       RecordWildCards
+                       ScopedTypeVariables
+                       StandaloneDeriving
+                       TupleSections
+                       TypeApplications
+                       ViewPatterns
+                       NoStarIsType
+                       BlockArguments
+
+library
+  import:              base
+  hs-source-dirs:      src
+  exposed-modules:     Core
+                         Core.Ch01.Language
+                         Core.Ch01.Prelude
+                         Core.Ch01.Pretty
+  build-depends:       base
+                     , text
+                     , utf8-string
+                     , bytestring
+                     , containers
+                     , mtl
+                     , prettyprinter
+                     , prettyprinter-ansi-terminal
+                     -- programs (lexers) produced by alex use array package
+                     , array
+                     , typed-process
+                     , repline
+
+  build-tool-depends:  alex:alex
+                     , happy:happy
+
+  ghc-options:         -Wall
+                       -Wincomplete-uni-patterns
+                       -Wincomplete-record-updates
+                       -Wcompat
+                       -Widentities
+                       -Wredundant-constraints
+                       -fhide-source-paths
+                       -Wpartial-fields
+
+executable core
+  import:              base
+  hs-source-dirs:      app
+  main-is:             Main.hs
+  build-depends:       base
+                     , core
+  ghc-options:         -Wall
+                       -threaded
+                       -rtsopts
+                       -with-rtsopts=-N
+                       -Wincomplete-uni-patterns
+                       -Wincomplete-record-updates
+                       -Wcompat
+                       -Widentities
+                       -Wredundant-constraints
+                       -fhide-source-paths
+                       -Wpartial-fields
+
+test-suite core-test
+  import:              base
+  type:                exitcode-stdio-1.0
+  build-depends:       core
+                     , text
+                     , bytestring
+                     , Glob
+                     , prettyprinter
+                     , filepath
+                     , hedgehog
+                     , tasty
+                     , tasty-discover
+                     , tasty-golden
+                     , tasty-expected-failure
+                     , tasty-hedgehog
+                     , doctest
+  build-tool-depends:  tasty-discover:tasty-discover
+  hs-source-dirs:      test
+  -- other-modules:
+  main-is:             Driver.hs
+  ghc-options:         -Wall
+                       -threaded
+                       -rtsopts
+                       -with-rtsopts=-N
+                       -Wincomplete-uni-patterns
+                       -Wincomplete-record-updates
+                       -Wcompat
+                       -Widentities
+                       -Wredundant-constraints
+                       -fhide-source-paths
+                       -Wmissing-export-lists
+                       -Wpartial-fields
+                       -Wmissing-home-modules
+                       -- Our test convention for HUnit would make it
+                       -- unnecessarily verbose to add the signature of each test
+                       -fno-warn-missing-signatures
+                       -- Delegate to Tasty to discover tests
+                       -fno-warn-missing-export-lists
