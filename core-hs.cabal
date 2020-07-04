@@ -44,6 +44,8 @@ library
                          Core.Ch01.Language
                          Core.Ch01.Prelude
                          Core.Ch01.Pretty
+                         Core.Ch01.Lexer
+                         Core.Ch01.Parser
 
                          Core.Ch02.MultMachine
                          Core.Ch02.Template1

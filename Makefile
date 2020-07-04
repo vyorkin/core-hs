@@ -1,7 +1,7 @@
 GHC_OPTIONS := --ghc-options='-fdiagnostics-color=never -ferror-spans -fhide-source-paths' # -fprint-unicode-syntax
 
 dev: all
-	ghcid --command="cabal repl $(GHC_OPTIONS)" | source-highlight -s haskell -f esc
+	ghcid --restart=src/Core/Ch01/Lexer.x --restart=src/Core/Ch01/Parser.y --command="cabal repl $(GHC_OPTIONS)" | source-highlight -s haskell -f esc
 repl:
 	cabal repl $(GHC_OPTIONS)
 all:
