@@ -47,6 +47,10 @@ library
 
                          Core.Ch02.MultMachine
                          Core.Ch02.Template1
+                         Core.Ch02.Types
+                         Core.Ch02.Utils
+                         Core.Ch02.Heap
+                         Core.Ch02.Addr
   build-depends:       base
                      , text
                      , utf8-string
