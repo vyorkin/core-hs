@@ -58,13 +58,14 @@ module Core.Ch02.Template1 where
 -- ar - address of the (root of the) newly constructed instance
 
 import Data.Text (Text)
+import qualified Data.Text as Text
 import qualified Data.List as List
 import Data.List (mapAccumL)
 
 import Core.Ch02.Utils (lookupDef)
 import Core.Ch01.Language (
-  CoreProgram, CoreExpr, Expr(..), Name(..),
-  CoreScDefn)
+  CoreProgram, CoreExpr, Expr(..),
+  Name(..), Alter, IsRec, CoreScDefn)
 import Core.Ch02.Types ((:=>))
 import Core.Ch02.Heap (Heap)
 import qualified Core.Ch02.Heap as Heap
@@ -115,9 +116,9 @@ extraPreludeDefs = []
 eval :: TiState -> [TiState]
 eval state = state : restStates
   where
+    nextState  = doAdmin . step $ state
     restStates | tiFinal state = []
                | otherwise     = eval nextState
-    nextState  = doAdmin . step $ state
 
 -- | Detects the final state.
 tiFinal :: TiState -> Bool
@@ -162,9 +163,9 @@ stepSupercomb (stack, dump, heap, globals, stats) name args body =
   where
     stack'  = drop (length (name : args)) stack
     stack'' = resAddr : stack'
-    (heap', resAddr) = instantiate body heap globals'
+    (heap', resAddr) = inst heap env body
 
-    globals' = globals ++ bindings
+    env = globals ++ bindings
     bindings = zip args addrs
     addrs = pullAddr . Heap.lookup heap <$> stack
 
@@ -173,12 +174,59 @@ stepSupercomb (stack, dump, heap, globals, stats) name args body =
 
 -- | Creates an "instance" of the expression in the heap.
 -- Returns the new heap and address of the root of the "instance".
-instantiate
-  :: CoreExpr       -- Body of supercombinator
-  -> TiHeap         -- Heap before instantiation
-  -> Name :=> Addr  -- Association of names to addresses
+-- This is a heart of template instantiation machine.
+inst
+  :: TiHeap        -- Heap before instantiation
+  -> Name :=> Addr -- Association of names to addresses
+  -> CoreExpr      -- Body of supercombinator
   -> (TiHeap, Addr)
-instantiate = undefined -- TODO: Continue from here
+inst heap env = \case
+  EVar v -> (heap, lookupDef v (undefVar v) env)
+  ENum n -> Heap.alloc heap (NNum n)
+  EConstr tag arity -> instConstr heap env tag arity
+  EAp e1 e2 ->
+    let (heap',  a1) = inst heap env e1
+        (heap'', a2) = inst heap' env e2
+     in Heap.alloc heap'' (NAp a1 a2)
+  ELet isRec defs body -> instLet heap env isRec defs body
+  ECase expr alts -> instCase heap env expr alts
+  ELam _args _expr -> error "Attempt to instantiate a lambda expression"
+  where
+    undefVar :: Name -> a
+    undefVar =
+        error
+      . Text.unpack
+      . (<>) "Undefined name: "
+      . unName
+
+-- | Instantiates type constructor.
+instConstr
+  :: TiHeap        -- Heap
+  -> Name :=> Addr -- (Augmented) env
+  -> Int           -- Tag
+  -> Int           -- Arity
+  -> (TiHeap, Addr)
+instConstr _heap _env _tag _arity =
+  error "Can't instantiate consturctors yet"
+
+instLet
+  :: TiHeap        -- Heap
+  -> Name :=> Addr -- (Augmented) env
+  -> IsRec         -- Is recursive let
+  -> a :=> Expr a  -- Definitions
+  -> (Expr a)      -- Body of let(rec)
+  -> (TiHeap, Addr)
+instLet _heap _env _isrec _defs _body =
+  error "Can't instantiate let(isrec) yet"
+
+instCase
+  :: TiHeap        -- Heap
+  -> Name :=> Addr -- (Augmented) env
+  -> Expr a
+  -> [Alter a]
+  -> (TiHeap, Addr)
+instCase _heap _env _expr _alts =
+  error "Can't instantiate case expressions yet"
 
 -- | Does any administrative work required between steps.
 -- For now we just increase the number of steps taken so far.
@@ -212,7 +260,6 @@ type TiHeap = Heap Node
 mkTiHeap :: [CoreScDefn] -> (TiHeap, TiGlobals)
 mkTiHeap = mapAccumL allocSc Heap.empty
 
--- Use this: ^^^
 -- mapAccumL
 --   :: Traversable t => (a -> b -> (a, c)) -> a -> t b -> (a, t c)
 

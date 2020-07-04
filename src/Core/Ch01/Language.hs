@@ -28,7 +28,7 @@ type CoreExpr = Expr Name
 data Expr a
   = EVar Name              -- ^ Variables
   | ENum Int               -- ^ Numbers
-  | EConstr Int Int        -- ^ Constructor tag arity
+  | EConstr Int Int        -- ^ Constructor with tag and arity
   | EAp (Expr a) (Expr a)  -- ^ Applications
   | ELet                   -- ^ Let(rec) expressions
       IsRec                -- Indicates if this is a recursive expression
@@ -40,7 +40,7 @@ data Expr a
   | ELam [a] (Expr a)      -- ^ Lambda abstractions
   deriving (Show)
 
-newtype Name = Name Text
+newtype Name = Name { unName :: Text }
   deriving (Eq, Show)
 
 type IsRec = Bool
