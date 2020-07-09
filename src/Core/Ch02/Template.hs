@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeOperators #-}
 
-module Core.Ch02.Template1 where
+module Core.Ch02.Template where
 
 -- Spine (of expression) - left-branching chain of application ndoes
 

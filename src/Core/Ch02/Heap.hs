@@ -1,4 +1,5 @@
 {-# LANGUAGE TypeOperators #-}
+
 module Core.Ch02.Heap
   ( Heap
 

@@ -2,7 +2,8 @@ module Core.Ch02.Language
   ( CoreProgram
   , CoreScDefn
   , CoreExpr
-  , CoreAlt
+  , CoreAlter
+  , CoreDefn
 
   , Program
   , ScDefn
@@ -20,7 +21,8 @@ import Core.Ch02.Language.Expr
 type CoreProgram = Program Name
 type CoreScDefn  = ScDefn Name
 type CoreExpr    = Expr Name
-type CoreAlt     = Alter Name
+type CoreAlter   = Alter Name
+type CoreDefn    = Defn Name
 
 -- A Core program consists of a set of supercombinator definitions,
 -- including a distinguished one, 'main'. To execute a program we

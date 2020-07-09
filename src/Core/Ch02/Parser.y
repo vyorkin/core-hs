@@ -65,14 +65,14 @@ ap :: { CoreExpr }
 ap : expr aexpr { EAp $1 $2 }
 
 case :: { CoreExpr }
-case : 'case' expr 'of' alts { ECase $2 $4 }
+case : 'case' expr 'of' alters { ECase $2 $4 }
 
-alts :: { [CoreAlt] }
-alts : alt          { [$1] }
-     | alts ';' alt { $3 : $1 }
+alters :: { [CoreAlter] }
+alters : alter            { [$1] }
+       | alters ';' alter { $3 : $1 }
 
-alt :: { CoreAlt }
-alt : '<' NUM '>' names '->' expr { Alter $2 $4 $6 }
+alter :: { CoreAlter }
+alter : '<' NUM '>' names '->' expr { Alter $2 $4 $6 }
 
 lam :: { CoreExpr }
 lam : '\\' name names '.' expr { ELam ($2 : (reverse $3)) $5 }
@@ -81,12 +81,12 @@ letrecin :: { CoreExpr }
 letrecin : 'let' rec defns
             'in' expr { ELet $2 $3 $5 }
 
-defns :: { [(Name, CoreExpr)] }
+defns :: { [CoreDefn] }
 defns : defn           { [$1] }
       | defns ';' defn { $3 : $1 }
 
-defn :: { (Name, CoreExpr) }
-defn : name '=' expr { ($1, $3) }
+defn :: { CoreDefn }
+defn : name '=' expr { Defn $1 $3 }
 
 rec :: { Bool }
 rec : 'rec' { True }

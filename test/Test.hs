@@ -6,10 +6,8 @@ import qualified Core.Ch01Test as Ch01
 import qualified Core.Ch02Test as Ch02
 
 main :: IO ()
-main = defaultMain tests
-
-tests :: TestTree
-tests = testGroup "Tests"
-  [ Ch01.tests
-  , Ch02.tests
-  ]
+main = do
+  ch02 <- Ch02.tests
+  defaultMain $ testGroup "Tests"
+    [ ch02
+    ]

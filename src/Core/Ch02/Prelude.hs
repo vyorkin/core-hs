@@ -30,7 +30,7 @@ defs =
       (EVar "y")
     )
   , ( "compose", ["f", "g", "x"]
-    , EAp (EVar "f") (EAp (EVar "g" (EVar "x")))
+    , EAp (EVar "f") (EAp (EVar "g") (EVar "x"))
     )
   , ( "twice", ["f"]
     , EAp (EAp (EVar "compose") (EVar "f")) (EVar "f")

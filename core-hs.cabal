@@ -57,7 +57,7 @@ library
                          Core.Ch02.Lexer
                          Core.Ch02.Parser
                          Core.Ch02.MultMachine
-                         Core.Ch02.Template1
+                         Core.Ch02.Template
                          Core.Ch02.Types
                          Core.Ch02.Utils
                          Core.Ch02.Heap
@@ -124,6 +124,9 @@ test-suite core-test
   hs-source-dirs:      test
   other-modules:       Core.Ch01Test
                        Core.Ch02Test
+                         Core.Ch02.ParserTest
+                         Core.Ch02.PrettyTest
+                         Core.Ch02.TemplateTest
                        Core.TestUtils
   main-is:             Test.hs
   ghc-options:         -Wall

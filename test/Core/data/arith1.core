@@ -1,3 +1,0 @@
--- Integer arithmetic
-let nsucc x = x + 1;
-let npred x = x - 1;
