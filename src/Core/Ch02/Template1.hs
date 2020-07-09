@@ -47,7 +47,7 @@ module Core.Ch02.Template1 where
 --     a0 : a1 : ... : an : s  d  h[a0 : NSupercomb [x1,...,xn] body]  f
 -- ==>                 ar : s  d  h'                                   f
 --     where
---     (h', ar) = instantiate body h f[x -> a1, ... ,xn -> an]
+--     (h', ar) = instantiate body h f[x -> a1, ..., xn -> an]
 
 -- body - expression to "instantiate"
 -- h - heap

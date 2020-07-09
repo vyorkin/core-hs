@@ -1,5 +1,5 @@
 {
-module Core.Ch01.Lexer
+module Core.Ch02.Lexer
   ( Lexeme(..)
   , Token(..)
   , Alex

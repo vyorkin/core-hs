@@ -47,12 +47,22 @@ library
                          Core.Ch01.Lexer
                          Core.Ch01.Parser
 
+                         Core.Ch02.Language
+                           Core.Ch02.Language.Name
+                           Core.Ch02.Language.Expr
+                         Core.Ch02.Prelude
+                         Core.Ch02.Pretty
+                           Core.Ch02.Pretty.Style
+                           Core.Ch02.Pretty.Utils
+                         Core.Ch02.Lexer
+                         Core.Ch02.Parser
                          Core.Ch02.MultMachine
                          Core.Ch02.Template1
                          Core.Ch02.Types
                          Core.Ch02.Utils
                          Core.Ch02.Heap
                          Core.Ch02.Addr
+
   build-depends:       base
                      , text
                      , utf8-string
@@ -107,15 +117,15 @@ test-suite core-test
                      , filepath
                      , hedgehog
                      , tasty
-                     , tasty-discover
                      , tasty-golden
                      , tasty-expected-failure
                      , tasty-hedgehog
                      , doctest
-  build-tool-depends:  tasty-discover:tasty-discover
   hs-source-dirs:      test
-  -- other-modules:
-  main-is:             Driver.hs
+  other-modules:       Core.Ch01Test
+                       Core.Ch02Test
+                       Core.TestUtils
+  main-is:             Test.hs
   ghc-options:         -Wall
                        -threaded
                        -rtsopts

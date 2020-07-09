@@ -1,11 +1,11 @@
 {
-module Core.Ch01.Parser
+module Core.Ch02.Parser
   ( parseExpr'
   ) where
 
 import qualified Data.Text as Text
-import Core.Ch01.Language
-import Core.Ch01.Lexer (Alex, Lexeme(..), Token(..), lexer, showPosn, runAlex)
+import Core.Ch02.Language
+import Core.Ch02.Lexer (Alex, Lexeme(..), Token(..), lexer, showPosn, runAlex)
 }
 
 %name parseExpr expr
