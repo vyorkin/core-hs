@@ -46,8 +46,11 @@ tokens :-
 <0> "in"    { mkT LIn  }
 <0> \(      { mkT LParenL }
 <0> \)      { mkT LParenR }
+<0> \{      { mkT LBraceL }
+<0> \}      { mkT LBraceR }
 <0> "->"    { mkT LArrow }
 <0> \.      { mkT LDot }
+<0> \,      { mkT LComma }
 <0> \+      { mkT LPlus }
 <0> \-      { mkT LMinus }
 <0> \*      { mkT LTimes }
@@ -81,11 +84,14 @@ data Lexeme
   | LAssign
   | LParenL
   | LParenR
+  | LBraceL
+  | LBraceR
   | LCase
   | LOf
   | LLam
   | LArrow
   | LDot
+  | LComma
   | LPlus
   | LMinus
   | LTimes

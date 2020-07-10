@@ -3,7 +3,6 @@ module Core.Ch02.Parser
   ( parseProgram'
   , parseScDefn'
   , parseExpr'
-
   , parseProgram
   , parseSc
   , parseExpr
@@ -38,8 +37,11 @@ import Core.Ch02.Lexer (Alex, Lexeme(..), Token(..), lexer, showPosn, runAlex)
   'in'   { T _ LIn _ }
   '('    { T _ LParenL _ }
   ')'    { T _ LParenR _ }
+  '{'    { T _ LBraceL _ }
+  '}'    { T _ LBraceR _ }
   '->'   { T _ LArrow _ }
   '.'    { T _ LDot _ }
+  ','    { T _ LComma _ }
   '>'    { T _ LGt _ }
   '<'    { T _ LLt _ }
   'case' { T _ LCase _ }
@@ -55,70 +57,77 @@ import Core.Ch02.Lexer (Alex, Lexeme(..), Token(..), lexer, showPosn, runAlex)
   NAME   { T _ (LName $$) _ }
   NUM    { T _ (LNum $$) _ }
 
-%right in
+%left 'in'
 %nonassoc '<' '>'
 %left '=='
 %left '+' '-'
 %left '*' '/'
+%%
 
 -- -----------------------------------------------------------------------------
 -- Grammar rules
 -- -----------------------------------------------------------------------------
 
-%%
-
 program :: { CoreProgram }
-program : scs { reverse $1 }
+program : scs { $1 }
 
 scs :: { [CoreScDefn] }
-scs : sc         { [$1] }
-    | scs sep sc { $3 : $1 }
+scs :        { [] }
+    | scs sc { $2 : $1 }
 
 sc :: { CoreScDefn }
-sc : name names '=' expr { ($1, reverse $2, $4) }
+sc : 'let' NAME names '=' expr { ($2, $3, $5) }
 
 expr :: { CoreExpr }
-expr : letrecin { $1 }
-     | lam      { $1 }
-     | ap       { $1 }
-     | case     { $1 }
-     | aexpr    { $1 }
+expr : ap     { $1 }
+     | letin  { $1 }
+     | lam    { $1 }
+     | case   { $1 }
+     | aexpr  { $1 }
 
 ap :: { CoreExpr }
-ap : expr aexpr { EAp $1 $2 }
+ap : expr aexpr { EApp $1 $2 }
 
 case :: { CoreExpr }
-case : 'case' expr 'of' opt(EOL) alters { ECase $2 (reverse $5) }
+case : 'case' expr 'of' alters { ECase $2 $4 }
 
 alters :: { [CoreAlter] }
 alters : alter            { [$1] }
        | alters sep alter { $3 : $1 }
 
 alter :: { CoreAlter }
-alter : tag names '->' expr { Alter $1 (reverse $2) $4 }
+alter : tag names '->' aexpr { Alter $1 (reverse $2) $4 }
 
-sep : EOL { $1 }
-    | ';' { $1 }
+lam :: { CoreExpr }
+lam : '\\' NAME names '.' aexpr { ELam ($2 : (reverse $3)) $5 }
 
-opt(p) : p { Just $1 }
-       |   { Nothing }
+letin :: { CoreExpr }
+letin : 'let' rec defns 'in' aexpr { ELet $2 (reverse $3) $5 }
+
+defns :: { [CoreDefn] }
+defns : defn           { $1 }
+      | defns sep defn { $3 : $1 }
+
+defn :: { CoreDefn }
+defn : NAME '=' aexpr { Defn $1 $3 }
+
+aexpr :: { CoreExpr }
+aexpr : var          { $1 }
+      | num          { $1 }
+      | constr       { $1 }
+      | '(' expr ')' { $2 }
+
+var :: { CoreExpr }
+var : NAME { EVar $1 }
+
+num :: { CoreExpr }
+num : NUM { ENum $1 }
+
+constr :: { CoreExpr }
+constr : '{' NUM ',' NUM '}' { EConstr $2 $4 }
 
 tag :: { Int }
 tag : '<' NUM '>' { $2 }
-
-lam :: { CoreExpr }
-lam : '\\' name names '.' expr { ELam ($2 : (reverse $3)) $5 }
-
-letrecin :: { CoreExpr }
-letrecin : 'let' rec defns
-            'in' expr { ELet $2 (reverse $3) $5 }
-
-defns :: { [CoreDefn] }
-defns : defn           { [$1] }
-      | defns ';' defn { $3 : $1 }
-
-defn :: { CoreDefn }
-defn : name '=' expr { Defn $1 $3 }
 
 rec :: { Bool }
 rec : 'rec' { True }
@@ -126,15 +135,13 @@ rec : 'rec' { True }
 
 names :: { [Name] }
 names :            { [] }
-      | names name { $2 : $1 }
+      | names NAME { $2 : $1 }
 
-name :: { Name }
-name : NAME { Name $1 }
+sep : EOL { $1 }
+    | ';' { $1 }
 
-aexpr :: { CoreExpr }
-aexpr : '(' expr ')' { $2 }
-      | NUM  { ENum $1 }
-      | name { EVar $1 }
+opt(p) : p { Just $1 }
+       |   { Nothing }
 
 {
 -- -----------------------------------------------------------------------------
