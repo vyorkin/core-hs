@@ -72,11 +72,11 @@ program :: { CoreProgram }
 program : scs { $1 }
 
 scs :: { [CoreScDefn] }
-scs :        { [] }
-    | scs sc { $2 : $1 }
+scs :            { [] }
+    | scs sep sc { $3 : $1 }
 
 sc :: { CoreScDefn }
-sc : 'let' NAME names '=' expr { ($2, $3, $5) }
+sc : 'let' name names '=' aexpr { ($2, $3, $5) }
 
 expr :: { CoreExpr }
 expr : ap     { $1 }
@@ -86,7 +86,7 @@ expr : ap     { $1 }
      | aexpr  { $1 }
 
 ap :: { CoreExpr }
-ap : expr aexpr { EApp $1 $2 }
+ap : expr aexpr { EAp $1 $2 }
 
 case :: { CoreExpr }
 case : 'case' expr 'of' alters { ECase $2 $4 }
@@ -99,17 +99,17 @@ alter :: { CoreAlter }
 alter : tag names '->' aexpr { Alter $1 (reverse $2) $4 }
 
 lam :: { CoreExpr }
-lam : '\\' NAME names '.' aexpr { ELam ($2 : (reverse $3)) $5 }
+lam : '\\' name names '.' aexpr { ELam ($2 : (reverse $3)) $5 }
 
 letin :: { CoreExpr }
 letin : 'let' rec defns 'in' aexpr { ELet $2 (reverse $3) $5 }
 
 defns :: { [CoreDefn] }
-defns : defn           { $1 }
+defns : defn           { [$1] }
       | defns sep defn { $3 : $1 }
 
 defn :: { CoreDefn }
-defn : NAME '=' aexpr { Defn $1 $3 }
+defn : name '=' aexpr { Defn $1 $3 }
 
 aexpr :: { CoreExpr }
 aexpr : var          { $1 }
@@ -118,7 +118,7 @@ aexpr : var          { $1 }
       | '(' expr ')' { $2 }
 
 var :: { CoreExpr }
-var : NAME { EVar $1 }
+var : name { EVar $1 }
 
 num :: { CoreExpr }
 num : NUM { ENum $1 }
@@ -135,7 +135,10 @@ rec : 'rec' { True }
 
 names :: { [Name] }
 names :            { [] }
-      | names NAME { $2 : $1 }
+      | names name { $2 : $1 }
+
+name :: { Name }
+name : NAME { Name $1 }
 
 sep : EOL { $1 }
     | ';' { $1 }
