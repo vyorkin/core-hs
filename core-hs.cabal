@@ -68,6 +68,7 @@ library
                      , utf8-string
                      , bytestring
                      , containers
+                     , filepath
                      , mtl
                      , prettyprinter
                      , prettyprinter-ansi-terminal

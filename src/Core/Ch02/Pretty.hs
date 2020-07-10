@@ -21,8 +21,9 @@ ppProgram = vcat . map ppScDefn
 
 ppScDefn :: Pretty a => ScDefn a -> Doc AnsiStyle
 ppScDefn (name, args, body) =
-      pretty name
-  <+> names Style.var args
+      annotate Style.letin "let"
+  <+> pretty name
+   <> names Style.var args
   <+> equals
   <+> ppExpr body
 
@@ -55,9 +56,9 @@ ppExprAt d (ECase cond alters) =
   <+> ppAltersAt d alters
 ppExprAt d (ELam vars body) = parensIf (d > 0) $
       annotate Style.lam backslash
-  <+> names Style.var vars
-  <+> annotate Style.dot dot
-   <> ppExprAt 0 body
+   <> names Style.var vars
+   <> annotate Style.dot dot
+  <+> ppExprAt 0 body
 
 ppDefnsAt :: Pretty a => Int -> [Defn a] -> Doc AnsiStyle
 ppDefnsAt = asep semi . ppDefnAt
@@ -71,6 +72,6 @@ ppAltersAt = asep semi . ppAlterAt
 ppAlterAt :: Pretty a => Int -> Alter a -> Doc AnsiStyle
 ppAlterAt d (Alter tag vars body) =
       annotate Style.alter (angles $ pretty tag)
-  <+> names Style.var vars
+   <> names Style.var vars
   <+> annotate Style.arrow "->"
   <+> ppExprAt d body

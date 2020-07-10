@@ -1,6 +1,12 @@
 {
 module Core.Ch02.Parser
-  ( parseExpr'
+  ( parseProgram'
+  , parseScDefn'
+  , parseExpr'
+
+  , parseProgram
+  , parseSc
+  , parseExpr
   ) where
 
 import qualified Data.Text as Text
@@ -8,6 +14,8 @@ import Core.Ch02.Language
 import Core.Ch02.Lexer (Alex, Lexeme(..), Token(..), lexer, showPosn, runAlex)
 }
 
+%name parseProgram program
+%name parseSc sc
 %name parseExpr expr
 
 %tokentype { Token }
@@ -53,6 +61,16 @@ import Core.Ch02.Lexer (Alex, Lexeme(..), Token(..), lexer, showPosn, runAlex)
 -- -----------------------------------------------------------------------------
 
 %%
+
+program :: { CoreProgram }
+program : scs { $1 }
+
+scs :: { [CoreScDefn] }
+scs :        { [] }
+    | scs sc { $2 : $1 }
+
+sc :: { CoreScDefn }
+sc : 'let' name names '=' expr { ($2, $3, $5) }
 
 expr :: { CoreExpr }
 expr : letrecin { $1 }
@@ -116,6 +134,12 @@ parseError (T pos l raw) = error $
   ++ " at "
   ++ showPosn pos
   ++ maybe "" (\str -> ". Input: " ++ Text.unpack str) raw
+
+parseProgram' :: String -> Either String CoreProgram
+parseProgram' = flip runAlex parseProgram
+
+parseScDefn' :: String -> Either String CoreScDefn
+parseScDefn' = flip runAlex parseSc
 
 parseExpr' :: String -> Either String CoreExpr
 parseExpr' = flip runAlex parseExpr

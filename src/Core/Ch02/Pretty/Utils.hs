@@ -36,7 +36,7 @@ parensIf True = parens
 parensIf False = id
 
 names :: Pretty a => AnsiStyle -> [a] -> Doc AnsiStyle
-names style ns = hsep (annotate style . pretty <$> ns)
+names style ns = annotate style $ hsep (pretty <$> ns)
 
 asep :: Doc ann -> (a -> Doc ann) -> [a] -> Doc ann
 asep s f = align . sep . zipWith (<+>) (repeat s) . map f

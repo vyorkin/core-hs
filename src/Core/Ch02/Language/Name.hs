@@ -4,8 +4,8 @@ module Core.Ch02.Language.Name
   ) where
 
 import Data.Text (Text)
-import Data.String (IsString(..))
 import qualified Data.Text as Text
+import Data.String (IsString(..))
 import Data.Text.Prettyprint.Doc (Pretty(..))
 
 newtype Name = Name Text
