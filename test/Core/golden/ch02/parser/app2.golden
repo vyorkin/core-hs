@@ -1,0 +1,1 @@
+[(Name "g",[],EAp (EVar (Name "f")) (EAp (EVar (Name "f")) (EAp (EVar (Name "f")) (EAp (EVar (Name "f")) (EAp (EVar (Name "f")) (EVar (Name "x")))))))]

@@ -1,0 +1,1 @@
+[(Name "f",[],ELam [Name "x"] (ELet False [Defn (Name "y") (ELam [Name "z"] (EVar (Name "z")))] (EVar (Name "y"))))]

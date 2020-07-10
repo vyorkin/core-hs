@@ -26,6 +26,7 @@ import Data.Maybe (isJust, fromJust)
 -- -----------------------------------------------------------------------------
 
 $ws    = [\ \t\b]
+$nl    = \n
 $digit = 0-9
 $alpha = [A-Za-z]
 
@@ -39,6 +40,7 @@ $alpha = [A-Za-z]
 tokens :-
 
 <0> "--".*  ;
+<0> "_"     { mkT LUnderscore }
 <0> "let"   { mkT LLet }
 <0> "rec"   { mkT LRec }
 <0> "in"    { mkT LIn  }
@@ -60,7 +62,7 @@ tokens :-
 <0> \\      { mkT LLam }
 <0> \=      { mkT LAssign }
 <0> \;      { mkT LSemi }
-<0> \n      { skip }
+<0> $nl+    { mkT LEOL }
 <0> $ws+    ;
 <0> @number { mkNum }
 <0> @name   { mkName }
@@ -72,7 +74,8 @@ tokens :-
 -- -----------------------------------------------------------------------------
 
 data Lexeme
-  = LLet
+  = LUnderscore
+  | LLet
   | LRec
   | LIn
   | LAssign
@@ -95,6 +98,7 @@ data Lexeme
   | LNum !Int
   | LName !Text
   | LSemi
+  | LEOL
   | LEOF
   deriving (Eq, Show)
 

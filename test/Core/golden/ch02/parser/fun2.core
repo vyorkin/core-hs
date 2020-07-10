@@ -1,0 +1,3 @@
+twice f x = f (f x)
+on g f = \x y. g (f x) (f y)
+ap f x = f (f x)

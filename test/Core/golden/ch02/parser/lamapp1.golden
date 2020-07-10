@@ -1,0 +1,1 @@
+[(Name "f",[Name "g"],EAp (ELam [Name "x"] (EAp (EVar (Name "g")) (EVar (Name "x")))) (ENum 2))]

@@ -2,7 +2,6 @@ module Core.Ch02.PrettyTest
   ( mkTests
   ) where
 
-import Debug.Trace (traceM)
 import Data.Text (Text)
 import Data.ByteString.Lazy.Char8 (ByteString)
 import System.FilePath ((<.>))
@@ -29,10 +28,9 @@ mkTestGroup
   -> IO TestTree
 mkTestGroup group pp ext path = do
   let pat = "*" <.> "core" <.> ext
-  traceM $ "pat: " <> pat
   paths <- glob path pat
-  cases <- mapM (golden $ ppFile pp) paths
-  pure $ testGroup group cases
+  tests <- mapM (golden $ ppFile pp) paths
+  pure $ testGroup group tests
 
 ppFile :: Read a => (a -> Text) -> FilePath -> IO ByteString
 ppFile pp path = read <$> readFile path >>= pure . textToBs . pp
