@@ -1,0 +1,1 @@
+[(Name "twice",[Name "f",Name "x"],EAp (EVar (Name "f")) (EAp (EVar (Name "f")) (EVar (Name "x")))),(Name "on",[Name "g",Name "f"],ELam [Name "x",Name "y"] (EAp (EAp (EVar (Name "g")) (EAp (EVar (Name "f")) (EVar (Name "x")))) (EAp (EVar (Name "f")) (EVar (Name "y"))))),(Name "ap",[Name "f",Name "x"],EAp (EVar (Name "f")) (EAp (EVar (Name "f")) (EVar (Name "x"))))]

@@ -4,14 +4,15 @@ module Core.Ch02.Pretty.Utils
   , render
   , layout
   , parensIf
-  , asep
+  , catsep
   , names
+  , (<%>)
   ) where
 
 import Data.Text (Text)
 import Data.Text.Prettyprint.Doc
   (Doc, SimpleDocStream, Pretty(..), unAnnotate, parens, align,
-   sep, hsep, annotate, (<+>), layoutSmart, defaultLayoutOptions)
+   hsep, annotate, (<+>), layoutSmart, defaultLayoutOptions)
 import Data.Text.Prettyprint.Doc.Render.Terminal (AnsiStyle)
 import Data.Text.Prettyprint.Doc.Render.Text (renderStrict)
 import qualified Data.Text.Prettyprint.Doc.Render.Terminal as Terminal (renderStrict)
@@ -38,5 +39,18 @@ parensIf False = id
 names :: Pretty a => AnsiStyle -> [a] -> Doc AnsiStyle
 names style ns = annotate style $ hsep (pretty <$> ns)
 
-asep :: Doc ann -> (a -> Doc ann) -> [a] -> Doc ann
-asep s f = align . sep . zipWith (<+>) (repeat s) . map f
+catsep
+  :: ([Doc ann] -> Doc ann)
+  -> Doc ann
+  -> (a -> Doc ann)
+  -> [a]
+  -> Doc ann
+catsep cat s f =
+    align
+  . cat
+  . zipWith (<>) (mempty : repeat s)
+  . map f
+
+(<%>) :: Pretty a => Doc AnsiStyle -> (AnsiStyle, [a]) -> Doc AnsiStyle
+d <%> (_, []) = d
+d <%> (s, xs) = d <+> annotate s (hsep (pretty <$> xs))

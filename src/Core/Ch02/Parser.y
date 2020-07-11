@@ -72,17 +72,13 @@ import Core.Ch02.Lexer (Alex, Lexeme(..), Token(..), lexer, showPosn, runAlex)
 -- -----------------------------------------------------------------------------
 
 program :: { CoreProgram }
-program : scs { $1 }
+program : scs { reverse $1 }
 
 scs :: { [CoreScDefn] }
-scs : scs sep sc { $3 : $1 }
-    | scs sep    { $1 }
-    | sc         { [$1] }
-    |            { [] }
-
+scs : delimited(scs, sc, sep) { $1 }
 
 sc :: { CoreScDefn }
-sc : name names '=' expr { ($1, $2, $4) }
+sc : name names '=' expr { ($1, reverse $2, $4) }
 
 expr :: { CoreExpr }
 expr : letin  { $1 }
@@ -98,10 +94,7 @@ case :: { CoreExpr }
 case : 'case' expr 'of' alters { ECase $2 (reverse $4) }
 
 alters :: { [CoreAlter] }
-alters : alters sep alter { $3 : $1 }
-       | alters sep       { $1 }
-       | alter            { [$1] }
-       |                  { [] }
+alters : delimited(alters, alter, sep) { $1 }
 
 alter :: { CoreAlter }
 alter : tag names '->' opt(EOL) expr { Alter $1 (reverse $2) $5 }
@@ -147,6 +140,11 @@ names :            { [] }
 
 name :: { Name }
 name : NAME { Name $1 }
+
+delimited(ts, t, d) : ts d t { $3 : $1 }
+                    | ts d   { $1 }
+                    | t      { [$1] }
+                    |        { [] }
 
 sep : EOL { $1 }
     | ';' { $1 }

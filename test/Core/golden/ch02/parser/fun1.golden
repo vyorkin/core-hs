@@ -1,1 +1,1 @@
-[(Name "compose",[Name "g",Name "f"],ELam [Name "x"] (EAp (EVar (Name "f")) (EAp (EVar (Name "g")) (EVar (Name "x"))))),(Name "const",[Name "y",Name "x"],EVar (Name "x"))]
+[(Name "const",[Name "x",Name "y"],EVar (Name "x")),(Name "compose",[Name "f",Name "g"],ELam [Name "x"] (EAp (EVar (Name "f")) (EAp (EVar (Name "g")) (EVar (Name "x")))))]

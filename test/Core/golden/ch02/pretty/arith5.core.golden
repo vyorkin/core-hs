@@ -1,0 +1,7 @@
+iszero n = (n (\ x. F)) T
+plus m n f x = (n f) ((m f) x)
+mult m n f = m (n f)
+pow m n = n m
+pred n f x = ((n (\ g h. h (g f))) (\ u. x)) I
+ack = \ m. (m (\ f n. (n f) (f one))) succ
+sub m n = (n pred) m

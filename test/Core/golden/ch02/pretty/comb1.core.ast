@@ -1,0 +1,1 @@
+[(Name "B",[Name "x",Name "y",Name "z"],EAp (EVar (Name "x")) (EAp (EVar (Name "y")) (EVar (Name "z")))),(Name "C",[Name "x",Name "y",Name "z"],EAp (EAp (EVar (Name "x")) (EVar (Name "z"))) (EVar (Name "y"))),(Name "W",[Name "x",Name "y"],EAp (EAp (EVar (Name "x")) (EVar (Name "y"))) (EVar (Name "y")))]

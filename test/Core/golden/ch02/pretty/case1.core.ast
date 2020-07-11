@@ -1,0 +1,1 @@
+[(Name "f",[Name "g",Name "x"],ECase (EVar (Name "x")) [Alter 0 [Name "y"] (EAp (EVar (Name "g")) (EVar (Name "y"))),Alter 1 [Name "w",Name "z"] (EVar (Name "z"))])]
