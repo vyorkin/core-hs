@@ -1,1 +1,1 @@
-"lexical error at line 1, column 14"
+[(Name "succ",[Name "x",Name "f",Name "n"],EAp (EVar (Name "f")) (EAp (EAp (EVar (Name "n")) (EVar (Name "f"))) (EVar (Name "x"))))]

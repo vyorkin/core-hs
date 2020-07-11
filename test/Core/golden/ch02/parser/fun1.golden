@@ -1,1 +1,1 @@
-"lexical error at line 1, column 15"
+[(Name "compose",[Name "g",Name "f"],ELam [Name "x"] (EAp (EVar (Name "f")) (EAp (EVar (Name "g")) (EVar (Name "x"))))),(Name "const",[Name "y",Name "x"],EVar (Name "x"))]

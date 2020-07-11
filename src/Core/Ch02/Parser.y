@@ -57,11 +57,14 @@ import Core.Ch02.Lexer (Alex, Lexeme(..), Token(..), lexer, showPosn, runAlex)
   NAME   { T _ (LName $$) _ }
   NUM    { T _ (LNum $$) _ }
 
-%left 'in'
+%left 'let' 'in'
+%right 'case' 'of'
+%left ';' EOL
+%left '='
 %nonassoc '<' '>'
-%left '=='
 %left '+' '-'
 %left '*' '/'
+%left '=='
 %%
 
 -- -----------------------------------------------------------------------------
@@ -72,15 +75,18 @@ program :: { CoreProgram }
 program : scs { $1 }
 
 scs :: { [CoreScDefn] }
-scs :            { [] }
-    | scs sep sc { $3 : $1 }
+scs : scs sep sc { $3 : $1 }
+    | scs sep    { $1 }
+    | sc         { [$1] }
+    |            { [] }
+
 
 sc :: { CoreScDefn }
-sc : 'let' name names '=' aexpr { ($2, $3, $5) }
+sc : name names '=' expr { ($1, $2, $4) }
 
 expr :: { CoreExpr }
-expr : ap     { $1 }
-     | letin  { $1 }
+expr : letin  { $1 }
+     | ap     { $1 }
      | lam    { $1 }
      | case   { $1 }
      | aexpr  { $1 }
@@ -89,27 +95,29 @@ ap :: { CoreExpr }
 ap : expr aexpr { EAp $1 $2 }
 
 case :: { CoreExpr }
-case : 'case' expr 'of' alters { ECase $2 $4 }
+case : 'case' expr 'of' alters { ECase $2 (reverse $4) }
 
 alters :: { [CoreAlter] }
-alters : alter            { [$1] }
-       | alters sep alter { $3 : $1 }
+alters : alters sep alter { $3 : $1 }
+       | alters sep       { $1 }
+       | alter            { [$1] }
+       |                  { [] }
 
 alter :: { CoreAlter }
-alter : tag names '->' aexpr { Alter $1 (reverse $2) $4 }
+alter : tag names '->' opt(EOL) expr { Alter $1 (reverse $2) $5 }
 
 lam :: { CoreExpr }
-lam : '\\' name names '.' aexpr { ELam ($2 : (reverse $3)) $5 }
+lam : '\\' name names '.' expr { ELam ($2 : (reverse $3)) $5 }
 
 letin :: { CoreExpr }
-letin : 'let' rec defns 'in' aexpr { ELet $2 (reverse $3) $5 }
+letin : 'let' rec defns 'in' expr { ELet $2 (reverse $3) $5 }
 
 defns :: { [CoreDefn] }
 defns : defn           { [$1] }
       | defns sep defn { $3 : $1 }
 
 defn :: { CoreDefn }
-defn : name '=' aexpr { Defn $1 $3 }
+defn : name '=' expr { Defn $1 $3 }
 
 aexpr :: { CoreExpr }
 aexpr : var          { $1 }

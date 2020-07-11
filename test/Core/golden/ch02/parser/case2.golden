@@ -1,1 +1,1 @@
-"lexical error at line 1, column 16"
+[(Name "f",[Name "x"],ECase (EVar (Name "x")) [Alter 0 [Name "g",Name "y"] (ECase (EAp (EVar (Name "g")) (EVar (Name "y"))) [Alter 0 [] (EVar (Name "x")),Alter 1 [Name "w"] (EAp (EVar (Name "w")) (EVar (Name "y")))]),Alter 1 [Name "z"] (EVar (Name "z"))])]
