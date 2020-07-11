@@ -2,7 +2,10 @@
 
 module Core.Ch02.Template where
 
--- Spine (of expression) - left-branching chain of application ndoes
+-- Simplest possible implementation of a
+-- graph reducer based on Template Instantiation.
+
+-- Spine (of expression) - left-branching chain of application nodes
 
 -- Unwinding spine - process of following the left branch of
 -- the application nodes, starting at the root, until we get to
@@ -21,6 +24,24 @@ module Core.Ch02.Template where
 
 -- Dump - records the state of the spine stack prior to the evaluation
 -- of an argument of a strict primitive. (Will be used later).
+
+-- Example:
+-- --------
+-- f E1 E2 E3
+-- where 'f' takes 2 arguments
+-- outermost application is: f E1 E2
+-- spine: [1, 2, 3]
+
+-- stack
+--  ---
+-- | *-|--------> 3
+-- |---|         / \
+-- | *-|-----> @2!  E3  <<- outermost function application
+-- |---|      /   \
+-- | *-|---> @1    E2
+-- |---|    /  \
+-- | *-|-> f    E1
+--  ---
 
 -- Heap - collection of tagged nodes.
 
