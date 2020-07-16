@@ -32,4 +32,4 @@ noprof:
 hoogle:
 	hoogle server --local
 
-.PHONY: dev repl clean all test check parser parser-clean tags prof noprof hoogle
+.PHONY: dev repl clean all test test-accept check parser parser-clean tags prof noprof hoogle

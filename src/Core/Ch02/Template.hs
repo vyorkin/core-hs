@@ -1,7 +1,11 @@
 {-# LANGUAGE TypeOperators #-}
 
-module Core.Ch02.Template where
+module Core.Ch02.Template
+  (
+  ) where
 
+-- Mark-1
+-- ------
 -- Simplest possible implementation of a
 -- graph reducer based on Template Instantiation.
 
@@ -93,6 +97,9 @@ import qualified Core.Ch02.Heap as Heap
 import Core.Ch02.Addr (Addr)
 import qualified Core.Ch02.Addr as Addr
 import qualified Core.Ch01.Prelude as Prelude
+import Core.Ch02.Template.Types
+  (TiState, TiStack, TiDump, TiHeap,
+   Node(..), TiGlobals, TiStats)
 
 -- | Runs a program.
 -- Returns the results of it's execution.
@@ -186,8 +193,13 @@ stepSupercomb (stack, dump, heap, globals, stats) name args body =
     stack'' = resAddr : stack'
     (heap', resAddr) = inst heap env body
 
+    env :: [(Name, Addr)]
     env = globals ++ bindings
+
+    bindings :: [(Name, Addr)]
     bindings = zip args addrs
+
+    addrs :: [Addr]
     addrs = pullAddr . Heap.lookup heap <$> stack
 
     pullAddr (NAp _ addr) = addr
@@ -198,7 +210,7 @@ stepSupercomb (stack, dump, heap, globals, stats) name args body =
 -- This is a heart of template instantiation machine.
 inst
   :: TiHeap        -- Heap before instantiation
-  -> Name :=> Addr -- Association of names to addresses
+  -> Name :=> Addr -- Env: arguments bindings + globals
   -> CoreExpr      -- Body of supercombinator
   -> (TiHeap, Addr)
 inst heap env = \case
@@ -206,11 +218,12 @@ inst heap env = \case
   ENum n -> Heap.alloc heap (NNum n)
   EConstr tag arity -> instConstr heap env tag arity
   EAp e1 e2 ->
-    let (heap',  a1) = inst heap env e1
+    let (heap' , a1) = inst heap  env e1
         (heap'', a2) = inst heap' env e2
      in Heap.alloc heap'' (NAp a1 a2)
   ELet isRec defs body -> instLet heap env isRec defs body
   ECase expr alts -> instCase heap env expr alts
+  -- Lambda can not be a body of a supercombinator
   ELam _args _expr -> error "Attempt to instantiate a lambda expression"
   where
     undefVar :: Name -> a
@@ -258,22 +271,8 @@ doAdmin = applyToStats tiStatsIncSteps
 prettyPrint :: [TiState] -> Text
 prettyPrint = undefined
 
--- | State of our Template Instantiation machine.
-type TiState = (TiStack, TiDump, TiHeap, TiGlobals, TiStats)
-
--- | Spine stack is stack of addresses, each of which identifies
--- a node in the heap. These nodes form the spine of the
--- expressions being evaluated.
-type TiStack = [Addr]
-
--- | We'll need it later, so we give it a dummy definition for now.
-type TiDump = ()
-
 tiDumpInit :: TiDump
 tiDumpInit = ()
-
--- | Heap of (tagged) nodes.
-type TiHeap = Heap Node
 
 -- | Constructs an initial heap containing 'NSupercomb' node
 -- for each supercombinator, together with an association list 'TiGlobals'
@@ -292,22 +291,6 @@ allocSc heap (name, args, body) = (heap', global) where
   (heap', addr) = Heap.alloc heap node
   node = NSupercomb name args body
   global = (name, addr)
-
--- | Represents possible nodes in our graph.
-data Node
-  = NAp Addr Addr -- ^ Application
-  | NSupercomb    -- ^ Supercombinator
-      Name        -- Holds the name of the supercombinator (used for debugging / odc)
-      [Name]      -- List of argument names
-      CoreExpr    -- Body expression
-  | NNum Int      -- ^ A number
-
--- | Mappings from supercombinator names to their addresses on a heap.
-type TiGlobals = Name :=> Addr
-
--- | Used to collect the runtime performance statistics on what
--- the machine does. For now we will record only the number of steps taken.
-type TiStats = Int
 
 tiStatsInit :: TiStats
 tiStatsInit = 0
