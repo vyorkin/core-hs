@@ -12,8 +12,7 @@ module Core.Ch02.Template.Types
 
 import Core.Ch02.Addr (Addr)
 import Core.Ch02.Heap (Heap)
-import Core.Ch01.Language (CoreExpr, Name(..))
-import Core.Ch02.Types ((:=>))
+import Core.Ch02.Language (CoreExpr, Name(..))
 
 -- | State of our Template Instantiation machine.
 type TiState = (TiStack, TiDump, TiHeap, TiGlobals, TiStats)
@@ -39,7 +38,7 @@ data Node
   | NNum Int      -- ^ A number
 
 -- | Mappings from supercombinator names to their addresses on a heap.
-type TiGlobals = Name :=> Addr
+type TiGlobals = [(Name, Addr)]
 
 -- | Used to collect the runtime performance statistics on what
 -- the machine does. For now we will record only the number of steps taken.

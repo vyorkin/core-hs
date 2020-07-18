@@ -61,7 +61,6 @@ library
                            Core.Ch02.Template.Types
                            Core.Ch02.Template.Pretty
                              Core.Ch02.Template.Pretty.Style
-                         Core.Ch02.Types
                          Core.Ch02.Utils
                          Core.Ch02.Heap
                          Core.Ch02.Addr

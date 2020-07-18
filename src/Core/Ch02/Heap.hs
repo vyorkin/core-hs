@@ -15,15 +15,14 @@ module Core.Ch02.Heap
 
 import Prelude hiding (lookup)
 
-import Core.Ch02.Types ((:=>))
 import Core.Ch02.Addr (Addr)
 import Core.Ch02.Utils (lookupDef)
 
 -- | Mapping of nodes of type 'a' to their addresses.
 type Heap a =
-  ( Int        -- Heap size
-  , [Addr]     -- List of available/free addresses
-  , Addr :=> a -- List of nodes with their associated addresses
+  ( Int         -- Heap size
+  , [Addr]      -- List of available/free addresses
+  , [(Addr, a)] -- List of nodes with their associated addresses
   )
 
 -- | Empty 'Heap'.
@@ -63,5 +62,5 @@ addresses (_, _, nodes) = [addr | (addr, _) <- nodes]
 size :: Heap a -> Int
 size (sz, _, _) = sz
 
-remove :: Addr -> Addr :=> a -> Addr :=> a
+remove :: Addr -> [(Addr, a)] -> [(Addr, a)]
 remove addr = filter ((==) addr . fst)

@@ -47,7 +47,7 @@ module Core.Ch02.Template
 -- | *-|-> f    E1
 --  ---
 
--- Heap - collection of tagged nodes.
+-- Heap - collection of tagged (addressable) nodes.
 
 -- `h[a:node]` means that:
 --   in the heap `h`
@@ -56,7 +56,6 @@ module Core.Ch02.Template
 
 -- Globals - global mapping of names to heap addresses of
 -- supercombinators and primitives.
-
 
 -- ------------------------------------------
 -- Mark-1 transition rules:
@@ -88,15 +87,15 @@ import qualified Data.List as List
 import Data.List (mapAccumL)
 
 import Core.Ch02.Utils (lookupDef)
-import Core.Ch01.Language (
+import Core.Ch02.Language (
   CoreProgram, CoreExpr, Expr(..),
-  Name(..), Alter, IsRec, CoreScDefn)
-import Core.Ch02.Types ((:=>))
+  Name(..), Defn(..), unName, Alter, IsRec, CoreScDefn)
 import Core.Ch02.Heap (Heap)
 import qualified Core.Ch02.Heap as Heap
 import Core.Ch02.Addr (Addr)
 import qualified Core.Ch02.Addr as Addr
-import qualified Core.Ch01.Prelude as Prelude
+import qualified Core.Ch02.Prelude as Prelude
+import Core.Ch02.Parser (parseProgram')
 import Core.Ch02.Template.Types
   (TiState, TiStack, TiDump, TiHeap,
    Node(..), TiGlobals, TiStats)
@@ -113,7 +112,7 @@ runProg =
 -- | Parses a program from the
 -- expression found in a specified file.
 parse :: Text -> CoreProgram
-parse = undefined
+parse = either error id . parseProgram' . Text.unpack
 
 -- | Translates a program into a form suitable for execution.
 compile :: CoreProgram -> TiState
@@ -209,9 +208,9 @@ stepSupercomb (stack, dump, heap, globals, stats) name args body =
 -- Returns the new heap and address of the root of the "instance".
 -- This is a heart of template instantiation machine.
 inst
-  :: TiHeap        -- Heap before instantiation
-  -> Name :=> Addr -- Env: arguments bindings + globals
-  -> CoreExpr      -- Body of supercombinator
+  :: TiHeap         -- Heap before instantiation
+  -> [(Name, Addr)] -- Env: arguments bindings + globals
+  -> CoreExpr       -- Body of supercombinator
   -> (TiHeap, Addr)
 inst heap env = \case
   EVar v -> (heap, lookupDef v (undefVar v) env)
@@ -235,27 +234,27 @@ inst heap env = \case
 
 -- | Instantiates type constructor.
 instConstr
-  :: TiHeap        -- Heap
-  -> Name :=> Addr -- (Augmented) env
-  -> Int           -- Tag
-  -> Int           -- Arity
+  :: TiHeap         -- Heap
+  -> [(Name, Addr)] -- (Augmented) env
+  -> Int            -- Tag
+  -> Int            -- Arity
   -> (TiHeap, Addr)
 instConstr _heap _env _tag _arity =
   error "Can't instantiate consturctors yet"
 
 instLet
-  :: TiHeap        -- Heap
-  -> Name :=> Addr -- (Augmented) env
-  -> IsRec         -- Is recursive let
-  -> a :=> Expr a  -- Definitions
-  -> (Expr a)      -- Body of let(rec)
+  :: TiHeap         -- Heap
+  -> [(Name, Addr)] -- (Augmented) env
+  -> IsRec          -- Is recursive let
+  -> [Defn a]       -- Definitions
+  -> (Expr a)       -- Body of let(rec)
   -> (TiHeap, Addr)
 instLet _heap _env _isrec _defs _body =
   error "Can't instantiate let(isrec) yet"
 
 instCase
-  :: TiHeap        -- Heap
-  -> Name :=> Addr -- (Augmented) env
+  :: TiHeap         -- Heap
+  -> [(Name, Addr)] -- (Augmented) env
   -> Expr a
   -> [Alter a]
   -> (TiHeap, Addr)
