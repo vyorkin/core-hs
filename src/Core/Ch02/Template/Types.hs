@@ -1,32 +1,32 @@
 {-# LANGUAGE TypeOperators #-}
 
 module Core.Ch02.Template.Types
-  ( TiState
-  , TiStack
-  , TiDump
-  , TiHeap
+  ( State
+  , Stack
+  , Dump
+  , Heap
   , Node(..)
-  , TiGlobals
-  , TiStats
+  , Globals
+  , Stats
   ) where
 
 import Core.Ch02.Addr (Addr)
-import Core.Ch02.Heap (Heap)
+import qualified Core.Ch02.Heap as H (Heap)
 import Core.Ch02.Language (CoreExpr, Name(..))
 
 -- | State of our Template Instantiation machine.
-type TiState = (TiStack, TiDump, TiHeap, TiGlobals, TiStats)
+type State = (Stack, Dump, Heap, Globals, Stats)
 
 -- | Spine stack is stack of addresses, each of which identifies
 -- a node in the heap. These nodes form the spine of the
 -- expressions being evaluated.
-type TiStack = [Addr]
+type Stack = [Addr]
 
 -- | We'll need it later, so we give it a dummy definition for now.
-type TiDump = ()
+type Dump = ()
 
 -- | Heap of (tagged) nodes.
-type TiHeap = Heap Node
+type Heap = H.Heap Node
 
 -- | Represents possible nodes in our graph.
 data Node
@@ -38,8 +38,8 @@ data Node
   | NNum Int      -- ^ A number
 
 -- | Mappings from supercombinator names to their addresses on a heap.
-type TiGlobals = [(Name, Addr)]
+type Globals = [(Name, Addr)]
 
 -- | Used to collect the runtime performance statistics on what
 -- the machine does. For now we will record only the number of steps taken.
-type TiStats = Int
+type Stats = Int

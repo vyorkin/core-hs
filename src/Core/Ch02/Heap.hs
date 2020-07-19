@@ -28,6 +28,7 @@ type Heap a =
 -- | Empty 'Heap'.
 empty :: Heap a
 empty = (0, [1..], [])
+--            ^-- Infinite list of free addresses
 
 -- | Allocates a new 'Addr' on a 'Heap'.
 alloc :: Heap a -> a -> (Heap a, Addr)

@@ -90,15 +90,12 @@ import Core.Ch02.Utils (lookupDef)
 import Core.Ch02.Language (
   CoreProgram, CoreExpr, Expr(..),
   Name(..), Defn(..), unName, Alter, IsRec, CoreScDefn)
-import Core.Ch02.Heap (Heap)
 import qualified Core.Ch02.Heap as Heap
 import Core.Ch02.Addr (Addr)
 import qualified Core.Ch02.Addr as Addr
 import qualified Core.Ch02.Prelude as Prelude
 import Core.Ch02.Parser (parseProgram')
-import Core.Ch02.Template.Types
-  (TiState, TiStack, TiDump, TiHeap,
-   Node(..), TiGlobals, TiStats)
+import Core.Ch02.Template.Types (State, Stack, Dump, Heap, Node(..), Globals, Stats)
 
 -- | Runs a program.
 -- Returns the results of it's execution.
@@ -115,22 +112,22 @@ parse :: Text -> CoreProgram
 parse = either error id . parseProgram' . Text.unpack
 
 -- | Translates a program into a form suitable for execution.
-compile :: CoreProgram -> TiState
+compile :: CoreProgram -> State
 compile program =
-  ( tiStackInit
-  , tiDumpInit
-  , tiHeapInit
-  , tiGlobalsInit
-  , tiStatsInit
+  ( stackInit
+  , dumpInit
+  , heapInit
+  , globalsInit
+  , statsInit
   )
   where
     supercombinators = program ++ Prelude.defs ++ extraPreludeDefs
-    (tiHeapInit, tiGlobalsInit) = mkTiHeap supercombinators
+    (heapInit, globalsInit) = mkHeap supercombinators
     -- Initial stack contains just one item, the address of
     -- the node for supercombinator 'main', obtained from 'globals'
-    tiStackInit = [mainAddr]
-    mainAddr = lookupDef (Name "main") mainErr tiGlobalsInit
-    mainErr  = error "main is not defined"
+    stackInit = [mainAddr]
+    mainAddr = lookupDef (Name "main") mainErr globalsInit
+    mainErr = error "main is not defined"
 
 -- | List of any further standart functions we may want to add.
 -- For the present it is empty.
@@ -140,27 +137,27 @@ extraPreludeDefs = []
 -- | Executes a program, by performing repeated state
 -- transitions until a final state is reached.
 -- The result is a list of all the states passed through.
-eval :: TiState -> [TiState]
+eval :: State -> [State]
 eval state = state : restStates
   where
     nextState  = doAdmin . step $ state
-    restStates | tiFinal state = []
+    restStates | isFinal state = []
                | otherwise     = eval nextState
 
 -- | Detects the final state.
-tiFinal :: TiState -> Bool
-tiFinal ([addr], _, heap, _, _) =
+isFinal :: State -> Bool
+isFinal ([addr], _, heap, _, _) =
   let node = Heap.lookup heap addr
    in isDataNode node
-tiFinal ([], _, _, _, _) = error "Empty stack"
-tiFinal _ = False
+isFinal ([], _, _, _, _) = error "Empty stack"
+isFinal _ = False
 
 isDataNode :: Node -> Bool
 isDataNode (NNum _) = True
 isDataNode _        = False
 
 -- | Maps one state into its successor.
-step :: TiState -> TiState
+step :: State -> State
 step state@(stack, _, heap, _, _) =
   let
     addr = head stack
@@ -172,19 +169,19 @@ step state@(stack, _, heap, _, _) =
     dispatch (NAp a1 a2) = stepAp state a1 a2
     dispatch (NSupercomb name args body) = stepSupercomb state name args body
 
--- If there is a number the end of a spine then
--- it means that we're trying to apply someting to a number.
-stepNum :: TiState -> Int -> TiState
+-- | If there is a number at the end of a spine then
+-- it means that we're trying to apply something to a number.
+stepNum :: State -> Int -> State
 stepNum _ _ = error "Number applied as a function";
 
 -- | Unwinds a single application node by
 -- pushing it onto our spine stack.
-stepAp :: TiState -> Addr -> Addr -> TiState
+stepAp :: State -> Addr -> Addr -> State
 stepAp (stack, dump, heap, globals, stats) a1 _ =
   (a1 : stack, dump, heap, globals, stats)
 
 -- | Supercombinator reduction.
-stepSupercomb :: TiState -> Name -> [Name] -> CoreExpr -> TiState
+stepSupercomb :: State -> Name -> [Name] -> CoreExpr -> State
 stepSupercomb (stack, dump, heap, globals, stats) name args body =
   (stack'', dump, heap', globals, stats)
   where
@@ -208,10 +205,10 @@ stepSupercomb (stack, dump, heap, globals, stats) name args body =
 -- Returns the new heap and address of the root of the "instance".
 -- This is a heart of template instantiation machine.
 inst
-  :: TiHeap         -- Heap before instantiation
-  -> [(Name, Addr)] -- Env: arguments bindings + globals
+  :: Heap           -- Heap before instantiation
+  -> [(Name, Addr)] -- Env: argument bindings + globals
   -> CoreExpr       -- Body of supercombinator
-  -> (TiHeap, Addr)
+  -> (Heap, Addr)
 inst heap env = \case
   EVar v -> (heap, lookupDef v (undefVar v) env)
   ENum n -> Heap.alloc heap (NNum n)
@@ -234,50 +231,50 @@ inst heap env = \case
 
 -- | Instantiates type constructor.
 instConstr
-  :: TiHeap         -- Heap
+  :: Heap           -- Heap
   -> [(Name, Addr)] -- (Augmented) env
   -> Int            -- Tag
   -> Int            -- Arity
-  -> (TiHeap, Addr)
+  -> (Heap, Addr)
 instConstr _heap _env _tag _arity =
-  error "Can't instantiate consturctors yet"
+  error "Can't instantiate constructors yet"
 
 instLet
-  :: TiHeap         -- Heap
+  :: Heap           -- Heap
   -> [(Name, Addr)] -- (Augmented) env
   -> IsRec          -- Is recursive let
   -> [Defn a]       -- Definitions
   -> (Expr a)       -- Body of let(rec)
-  -> (TiHeap, Addr)
+  -> (Heap, Addr)
 instLet _heap _env _isrec _defs _body =
   error "Can't instantiate let(isrec) yet"
 
 instCase
-  :: TiHeap         -- Heap
+  :: Heap           -- Heap
   -> [(Name, Addr)] -- (Augmented) env
   -> Expr a
   -> [Alter a]
-  -> (TiHeap, Addr)
+  -> (Heap, Addr)
 instCase _heap _env _expr _alts =
   error "Can't instantiate case expressions yet"
 
 -- | Does any administrative work required between steps.
 -- For now we just increase the number of steps taken so far.
-doAdmin :: TiState -> TiState
-doAdmin = applyToStats tiStatsIncSteps
+doAdmin :: State -> State
+doAdmin = applyToStats statsIncSteps
 
 -- | Pretty-prints results of an execution.
-prettyPrint :: [TiState] -> Text
+prettyPrint :: [State] -> Text
 prettyPrint = undefined
 
-tiDumpInit :: TiDump
-tiDumpInit = ()
+dumpInit :: Dump
+dumpInit = ()
 
--- | Constructs an initial heap containing 'NSupercomb' node
--- for each supercombinator, together with an association list 'TiGlobals'
--- which maps each supercombinator name onto the address of its node.
-mkTiHeap :: [CoreScDefn] -> (TiHeap, TiGlobals)
-mkTiHeap = mapAccumL allocSc Heap.empty
+-- | Constructs an initial heap containing 'NSupercomb' node for
+-- each supercombinator, together with 'Globals' (association
+-- list which maps each supercombinator name onto the address of its node).
+mkHeap :: [CoreScDefn] -> (Heap, Globals)
+mkHeap = mapAccumL allocSc Heap.empty
 
 -- mapAccumL
 --   :: Traversable t => (a -> b -> (a, c)) -> a -> t b -> (a, t c)
@@ -285,26 +282,26 @@ mkTiHeap = mapAccumL allocSc Heap.empty
 -- λ> mapAccumL (\acc x -> (acc + 1, x + 1)) 0 [1..5] :: (Int, [Int])
 -- (5,[2,3,4,5,6])
 
-allocSc :: TiHeap -> CoreScDefn -> (TiHeap, (Name, Addr))
+allocSc :: Heap -> CoreScDefn -> (Heap, (Name, Addr))
 allocSc heap (name, args, body) = (heap', global) where
   (heap', addr) = Heap.alloc heap node
   node = NSupercomb name args body
   global = (name, addr)
 
-tiStatsInit :: TiStats
-tiStatsInit = 0
+statsInit :: Stats
+statsInit = 0
 
-tiStatsIncSteps :: TiStats -> TiStats
-tiStatsIncSteps = (+) 1
+statsIncSteps :: Stats -> Stats
+statsIncSteps = (+) 1
 
-tiStatsDecSteps :: TiStats -> TiStats
-tiStatsDecSteps = (-) 1
+statsDecSteps :: Stats -> Stats
+statsDecSteps = (-) 1
 
-tiStatsGetSteps :: TiStats -> Int
-tiStatsGetSteps = id
+statsGetSteps :: Stats -> Int
+statsGetSteps = id
 
 -- | Applies a given function to
 -- the statistics component of the state.
-applyToStats :: (TiStats -> TiStats) -> TiState -> TiState
+applyToStats :: (Stats -> Stats) -> State -> State
 applyToStats f (stack, dump, heap, globals, stats) =
   (stack, dump, heap, globals, f stats)
