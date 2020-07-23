@@ -54,11 +54,13 @@ library
                          Core.Ch02.Pretty
                            Core.Ch02.Pretty.Style
                            Core.Ch02.Pretty.Utils
+                           Core.Ch02.Pretty.Types
                          Core.Ch02.Lexer
                          Core.Ch02.Parser
                          Core.Ch02.MultMachine
                          Core.Ch02.Template
                            Core.Ch02.Template.Types
+                           Core.Ch02.Template.Stats
                            Core.Ch02.Template.Pretty
                              Core.Ch02.Template.Pretty.Style
                          Core.Ch02.Utils

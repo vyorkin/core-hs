@@ -16,11 +16,12 @@ import Data.Text.Prettyprint.Doc
 import Data.Text.Prettyprint.Doc.Render.Terminal (AnsiStyle)
 import Data.Text.Prettyprint.Doc.Render.Text (renderStrict)
 import qualified Data.Text.Prettyprint.Doc.Render.Terminal as Terminal (renderStrict)
+import Core.Ch02.Pretty.Types (Printer)
 
-renderRaw :: (a -> Doc AnsiStyle) -> a -> Text
+renderRaw :: Printer a -> a -> Text
 renderRaw f = render renderStrict (unAnnotate . f)
 
-renderAnn :: (a -> Doc AnsiStyle) -> a -> Text
+renderAnn :: Printer a -> a -> Text
 renderAnn = render Terminal.renderStrict
 
 render
@@ -51,6 +52,9 @@ catsep cat s f =
   . zipWith (<>) (mempty : repeat s)
   . map f
 
+-- | Concatenates a document and a list of
+-- styled 'a's using the '<+>' operator if there are any elements in it.
+-- Otherwise returns a document as is.
 (<%>) :: Pretty a => Doc AnsiStyle -> (AnsiStyle, [a]) -> Doc AnsiStyle
 d <%> (_, []) = d
 d <%> (s, xs) = d <+> annotate s (hsep (pretty <$> xs))

@@ -5,16 +5,18 @@ module Core.Ch02.Pretty
   , ppProgram
 
   , module Core.Ch02.Pretty.Utils
+  , module Core.Ch02.Pretty.Types
   ) where
 
 import Data.Text.Prettyprint.Doc
   (Doc, Pretty(..), braces, hardline, nest, angles, semi, space,
-   dot, equals, comma, backslash, hcat, vcat, align, (<+>), annotate)
+   dot, equals, comma, backslash, hcat, vcat, (<+>), annotate)
 import Data.Text.Prettyprint.Doc.Render.Terminal (AnsiStyle)
 
 import Core.Ch02.Pretty.Utils (renderRaw, renderAnn, render, parensIf, catsep, (<%>))
 import qualified Core.Ch02.Pretty.Style as Style
 import Core.Ch02.Language (Program, ScDefn, Expr(..), IsRec, Defn(..), Alter(..))
+import Core.Ch02.Pretty.Types (Printer)
 
 ppProgram :: Pretty a => Program a -> Doc AnsiStyle
 ppProgram = vcat . map ppScDefn

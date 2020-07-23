@@ -2,7 +2,7 @@ module Core.Ch02.Prelude
   ( defs
   ) where
 
-import Core.Ch02.Language (CoreProgram, Expr(..), Name(..))
+import Core.Ch02.Language (CoreProgram, Expr(..))
 
 -- "standard prelude" for our Core language
 

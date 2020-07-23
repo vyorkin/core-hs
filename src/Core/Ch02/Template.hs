@@ -1,7 +1,10 @@
-{-# LANGUAGE TypeOperators #-}
-
 module Core.Ch02.Template
-  (
+  ( runProg
+  , parse
+  , compile
+  , eval
+  , step
+  , inst
   ) where
 
 -- Mark-1
@@ -83,7 +86,6 @@ module Core.Ch02.Template
 
 import Data.Text (Text)
 import qualified Data.Text as Text
-import qualified Data.List as List
 import Data.List (mapAccumL)
 
 import Core.Ch02.Utils (lookupDef)
@@ -92,19 +94,16 @@ import Core.Ch02.Language (
   Name(..), Defn(..), unName, Alter, IsRec, CoreScDefn)
 import qualified Core.Ch02.Heap as Heap
 import Core.Ch02.Addr (Addr)
-import qualified Core.Ch02.Addr as Addr
 import qualified Core.Ch02.Prelude as Prelude
 import Core.Ch02.Parser (parseProgram')
-import Core.Ch02.Template.Types (State, Stack, Dump, Heap, Node(..), Globals, Stats)
+import Core.Ch02.Template.Types (State, Dump, NodeHeap, Node(..), Globals)
+import Core.Ch02.Pretty (Printer, renderAnn)
+import qualified Core.Ch02.Template.Stats as Stats
 
 -- | Runs a program.
 -- Returns the results of it's execution.
-runProg :: Text -> Text
-runProg =
-    prettyPrint
-  . eval
-  . compile
-  . parse
+runProg :: Printer [State] -> Text -> Text
+runProg pp = (renderAnn pp) . eval . compile . parse
 
 -- | Parses a program from the
 -- expression found in a specified file.
@@ -118,7 +117,7 @@ compile program =
   , dumpInit
   , heapInit
   , globalsInit
-  , statsInit
+  , mempty
   )
   where
     supercombinators = program ++ Prelude.defs ++ extraPreludeDefs
@@ -205,10 +204,10 @@ stepSupercomb (stack, dump, heap, globals, stats) name args body =
 -- Returns the new heap and address of the root of the "instance".
 -- This is a heart of template instantiation machine.
 inst
-  :: Heap           -- Heap before instantiation
+  :: NodeHeap           -- Heap before instantiation
   -> [(Name, Addr)] -- Env: argument bindings + globals
   -> CoreExpr       -- Body of supercombinator
-  -> (Heap, Addr)
+  -> (NodeHeap, Addr)
 inst heap env = \case
   EVar v -> (heap, lookupDef v (undefVar v) env)
   ENum n -> Heap.alloc heap (NNum n)
@@ -231,41 +230,37 @@ inst heap env = \case
 
 -- | Instantiates type constructor.
 instConstr
-  :: Heap           -- Heap
+  :: NodeHeap       -- Heap
   -> [(Name, Addr)] -- (Augmented) env
   -> Int            -- Tag
   -> Int            -- Arity
-  -> (Heap, Addr)
+  -> (NodeHeap, Addr)
 instConstr _heap _env _tag _arity =
   error "Can't instantiate constructors yet"
 
 instLet
-  :: Heap           -- Heap
+  :: NodeHeap       -- Heap
   -> [(Name, Addr)] -- (Augmented) env
   -> IsRec          -- Is recursive let
   -> [Defn a]       -- Definitions
   -> (Expr a)       -- Body of let(rec)
-  -> (Heap, Addr)
+  -> (NodeHeap, Addr)
 instLet _heap _env _isrec _defs _body =
   error "Can't instantiate let(isrec) yet"
 
 instCase
-  :: Heap           -- Heap
+  :: NodeHeap       -- Heap
   -> [(Name, Addr)] -- (Augmented) env
   -> Expr a
   -> [Alter a]
-  -> (Heap, Addr)
+  -> (NodeHeap, Addr)
 instCase _heap _env _expr _alts =
   error "Can't instantiate case expressions yet"
 
 -- | Does any administrative work required between steps.
 -- For now we just increase the number of steps taken so far.
 doAdmin :: State -> State
-doAdmin = applyToStats statsIncSteps
-
--- | Pretty-prints results of an execution.
-prettyPrint :: [State] -> Text
-prettyPrint = undefined
+doAdmin = Stats.apply Stats.incSteps
 
 dumpInit :: Dump
 dumpInit = ()
@@ -273,7 +268,7 @@ dumpInit = ()
 -- | Constructs an initial heap containing 'NSupercomb' node for
 -- each supercombinator, together with 'Globals' (association
 -- list which maps each supercombinator name onto the address of its node).
-mkHeap :: [CoreScDefn] -> (Heap, Globals)
+mkHeap :: [CoreScDefn] -> (NodeHeap, Globals)
 mkHeap = mapAccumL allocSc Heap.empty
 
 -- mapAccumL
@@ -282,26 +277,8 @@ mkHeap = mapAccumL allocSc Heap.empty
 -- λ> mapAccumL (\acc x -> (acc + 1, x + 1)) 0 [1..5] :: (Int, [Int])
 -- (5,[2,3,4,5,6])
 
-allocSc :: Heap -> CoreScDefn -> (Heap, (Name, Addr))
+allocSc :: NodeHeap -> CoreScDefn -> (NodeHeap, (Name, Addr))
 allocSc heap (name, args, body) = (heap', global) where
   (heap', addr) = Heap.alloc heap node
   node = NSupercomb name args body
   global = (name, addr)
-
-statsInit :: Stats
-statsInit = 0
-
-statsIncSteps :: Stats -> Stats
-statsIncSteps = (+) 1
-
-statsDecSteps :: Stats -> Stats
-statsDecSteps = (-) 1
-
-statsGetSteps :: Stats -> Int
-statsGetSteps = id
-
--- | Applies a given function to
--- the statistics component of the state.
-applyToStats :: (Stats -> Stats) -> State -> State
-applyToStats f (stack, dump, heap, globals, stats) =
-  (stack, dump, heap, globals, f stats)
