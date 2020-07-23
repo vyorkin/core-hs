@@ -1,6 +1,6 @@
 module Core.Ch02.Pretty.Utils
-  ( renderRaw
-  , renderAnn
+  ( rendererRaw
+  , rendererAnn
   , render
   , layout
   , parensIf
@@ -9,20 +9,19 @@ module Core.Ch02.Pretty.Utils
   , (<%>)
   ) where
 
-import Data.Text (Text)
 import Data.Text.Prettyprint.Doc
   (Doc, SimpleDocStream, Pretty(..), unAnnotate, parens, align,
    hsep, annotate, (<+>), layoutSmart, defaultLayoutOptions)
 import Data.Text.Prettyprint.Doc.Render.Terminal (AnsiStyle)
 import Data.Text.Prettyprint.Doc.Render.Text (renderStrict)
 import qualified Data.Text.Prettyprint.Doc.Render.Terminal as Terminal (renderStrict)
-import Core.Ch02.Pretty.Types (Printer)
+import Core.Ch02.Pretty.Types (Renderer)
 
-renderRaw :: Printer a -> a -> Text
-renderRaw f = render renderStrict (unAnnotate . f)
+rendererRaw :: Renderer a
+rendererRaw f = render renderStrict (unAnnotate . f)
 
-renderAnn :: Printer a -> a -> Text
-renderAnn = render Terminal.renderStrict
+rendererAnn :: Renderer a
+rendererAnn = render Terminal.renderStrict
 
 render
   :: (SimpleDocStream AnsiStyle -> a)

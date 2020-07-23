@@ -9,15 +9,15 @@ import System.FilePath ((<.>))
 import Test.Tasty (TestTree, testGroup)
 
 import Core.Ch02.Language (CoreProgram)
-import Core.Ch02.Pretty (renderRaw, ppProgram)
+import Core.Ch02.Pretty (rendererRaw, ppProgram)
 
 import Core.TestUtils (glob, golden, textToBs)
 
 mkTests :: FilePath -> IO TestTree
-mkTests = mkTestGroup "ppProgram" renderProgram "ast"
+mkTests = mkTestGroup "ppProgram" render "ast"
 
-renderProgram :: CoreProgram -> Text
-renderProgram = renderRaw ppProgram
+render :: CoreProgram -> Text
+render = rendererRaw ppProgram
 
 mkTestGroup
   :: Read a

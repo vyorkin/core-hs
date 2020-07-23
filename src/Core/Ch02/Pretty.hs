@@ -13,10 +13,10 @@ import Data.Text.Prettyprint.Doc
    dot, equals, comma, backslash, hcat, vcat, (<+>), annotate)
 import Data.Text.Prettyprint.Doc.Render.Terminal (AnsiStyle)
 
-import Core.Ch02.Pretty.Utils (renderRaw, renderAnn, render, parensIf, catsep, (<%>))
+import Core.Ch02.Pretty.Utils (rendererRaw, rendererAnn, render, parensIf, catsep, (<%>))
 import qualified Core.Ch02.Pretty.Style as Style
 import Core.Ch02.Language (Program, ScDefn, Expr(..), IsRec, Defn(..), Alter(..))
-import Core.Ch02.Pretty.Types (Printer)
+import Core.Ch02.Pretty.Types (Renderer, Printer)
 
 ppProgram :: Pretty a => Program a -> Doc AnsiStyle
 ppProgram = vcat . map ppScDefn

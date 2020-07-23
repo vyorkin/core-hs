@@ -97,13 +97,14 @@ import Core.Ch02.Addr (Addr)
 import qualified Core.Ch02.Prelude as Prelude
 import Core.Ch02.Parser (parseProgram')
 import Core.Ch02.Template.Types (State, Dump, NodeHeap, Node(..), Globals)
-import Core.Ch02.Pretty (Printer, renderAnn)
+import Core.Ch02.Pretty (Renderer)
 import qualified Core.Ch02.Template.Stats as Stats
+import Core.Ch02.Template.Pretty (ppStates)
 
 -- | Runs a program.
 -- Returns the results of it's execution.
-runProg :: Printer [State] -> Text -> Text
-runProg pp = (renderAnn pp) . eval . compile . parse
+runProg :: Renderer [State] -> Text -> Text
+runProg pp = pp ppStates . eval . compile . parse
 
 -- | Parses a program from the
 -- expression found in a specified file.

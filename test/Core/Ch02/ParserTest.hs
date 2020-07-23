@@ -13,7 +13,7 @@ import Core.TestUtils (glob, golden, showEither)
 
 mkTests :: FilePath -> IO TestTree
 mkTests path = do
-  paths <- glob path ("*" <.> "core")
+  paths <- glob path "*.core"
   tests <- mapM (golden parseFile) paths
   pure $ testGroup "parser" tests
 
