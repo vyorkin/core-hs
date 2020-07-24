@@ -1,12 +1,3 @@
-module Core.Ch02.Template
-  ( runProg
-  , parse
-  , compile
-  , eval
-  , step
-  , inst
-  ) where
-
 -- Mark-1
 -- ------
 -- Simplest possible implementation of a
@@ -84,6 +75,15 @@ module Core.Ch02.Template
 
 -- ar - address of the (root of the) newly constructed instance
 
+module Core.Ch02.Template
+  ( runProg
+  , parse
+  , compile
+  , eval
+  , step
+  , inst
+  ) where
+
 import Data.Text (Text)
 import qualified Data.Text as Text
 import Data.List (mapAccumL)
@@ -122,6 +122,16 @@ compile program =
   )
   where
     supercombinators = program ++ Prelude.defs ++ extraPreludeDefs
+
+    -- [ (8,NSupercomb (Name "twice") [Name "f"] (EAp (EAp (EVar (Name "compose")) (EVar (Name "f"))) (EVar (Name "f"))))
+    -- , (7,NSupercomb (Name "compose") [Name "f",Name "g",Name "x"] (EAp (EVar (Name "f")) (EAp (EVar (Name "g")) (EVar (Name "x")))))
+    -- , (6,NSupercomb (Name "cons") [Name "x",Name "y"] (EAp (EAp (EConstr 2 2) (EVar (Name "x"))) (EVar (Name "y"))))
+    -- , (5,NSupercomb (Name "nil") [] (EConstr 1 0))
+    -- , (4,NSupercomb (Name "S") [Name "f",Name "g",Name "x"] (EAp (EAp (EVar (Name "f")) (EVar (Name "x"))) (EAp (EVar (Name "g")) (EVar (Name "x")))))
+    -- , (3,NSupercomb (Name "K1") [Name "x",Name "y"] (EVar (Name "y")))
+    -- , (2,NSupercomb (Name "K") [Name "x",Name "y"] (EVar (Name "x")))
+    -- , (1,NSupercomb (Name "I") [Name "x"] (EVar (Name "x")))]
+
     (heapInit, globalsInit) = mkHeap supercombinators
     -- Initial stack contains just one item, the address of
     -- the node for supercombinator 'main', obtained from 'globals'
@@ -199,7 +209,7 @@ stepSupercomb (stack, dump, heap, globals, stats) name args body =
     addrs = pullAddr . Heap.lookup heap <$> stack
 
     pullAddr (NAp _ addr) = addr
-    pullAddr _            = error "Not an application node"
+    pullAddr node         = error $ "Not an application node: " <> show node
 
 -- | Creates an "instance" of the expression in the heap.
 -- Returns the new heap and address of the root of the "instance".

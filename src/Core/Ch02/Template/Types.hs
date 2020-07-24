@@ -46,6 +46,7 @@ data Node
       [Name]      -- List of argument names
       CoreExpr    -- Body expression
   | NNum Int      -- ^ A number
+  deriving (Eq, Show)
 
 -- | Mappings from supercombinator names to their addresses on a heap.
 type Globals = [(Name, Addr)]
