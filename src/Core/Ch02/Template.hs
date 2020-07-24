@@ -200,16 +200,16 @@ stepSupercomb (stack, dump, heap, globals, stats) name args body =
     (heap', resAddr) = inst heap env body
 
     env :: [(Name, Addr)]
-    env = globals ++ bindings
+    env = bindings ++ globals
 
     bindings :: [(Name, Addr)]
     bindings = zip args addrs
 
     addrs :: [Addr]
-    addrs = pullAddr . Heap.lookup heap <$> stack
+    addrs = pullAddr . Heap.lookup heap <$> tail stack
 
     pullAddr (NAp _ addr) = addr
-    pullAddr node         = error $ "Not an application node: " <> show node
+    pullAddr node = error $ "Not an application node: " <> show node
 
 -- | Creates an "instance" of the expression in the heap.
 -- Returns the new heap and address of the root of the "instance".

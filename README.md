@@ -36,9 +36,43 @@ compiled program and modeled as a __state transition system__.
 
 ## Notes
 
-#### Chapter 1
+### Chapter 1
 
-#### Chapter 2
+### Chapter 2
+
+##### Mark-1:
+
+Ex 2.4:
+
+```
+main = S K K 3
+```
+
+Ex 2.4 trace:
+
+```
+1 : NSupercomb main
+13 : NAp 11 12
+11 : NAp 10 3
+13 : NAp 11 12
+10 : NAp 5 3
+11 : NAp 10 3
+13 : NAp 11 12
+5 : NSupercomb S
+10 : NAp 5 3
+11 : NAp 10 3
+13 : NAp 11 12
+16 : NAp 14 15
+14 : NAp 3 12
+16 : NAp 14 15
+3 : NSupercomb K
+14 : NAp 3 12
+16 : NAp 14 15
+12 : NNum 3
+
+Stats:
+  Total number of steps: 8
+```
 
 #### Chapter 3
 

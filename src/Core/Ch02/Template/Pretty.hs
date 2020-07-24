@@ -4,7 +4,7 @@ module Core.Ch02.Template.Pretty
   , ppStack
   ) where
 
-import Data.Text.Prettyprint.Doc (Doc, Pretty(..), vcat, (<+>), annotate)
+import Data.Text.Prettyprint.Doc (Doc, Pretty(..), vcat, (<+>), annotate, nest, hardline)
 import Data.Text.Prettyprint.Doc.Render.Terminal (AnsiStyle)
 
 import Core.Ch02.Addr (Addr)
@@ -14,11 +14,13 @@ import Core.Ch02.Pretty (catsep)
 import qualified Core.Ch02.Template.Pretty.Style as Style
 
 ppStates :: [State] -> Doc AnsiStyle
-ppStates ss = vcat (ppState <$> ss) <> ppStats (last ss)
+ppStates ss = vcat $ (ppState <$> ss) <> [ppStats (last ss)]
 
 ppStats :: State -> Doc AnsiStyle
 ppStats (_, _, _, _, stats) =
-     "Total number of steps: "
+      "Stats:"
+  <+> nest 1 hardline
+  <+> "Total number of steps:"
   <+> pretty (getSteps stats)
 
 ppState :: State -> Doc AnsiStyle

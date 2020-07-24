@@ -33,7 +33,7 @@ layout :: (a -> Doc ann) -> a -> SimpleDocStream ann
 layout f = layoutSmart defaultLayoutOptions . f
 
 parensIf :: Bool -> Doc ann -> Doc ann
-parensIf True = parens
+parensIf True  = parens
 parensIf False = id
 
 names :: Pretty a => AnsiStyle -> [a] -> Doc AnsiStyle
