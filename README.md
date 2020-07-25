@@ -28,10 +28,10 @@ without losing efficiency.
 Each implementation consists of two main parts:
 __compiler__ and the __machine interpreter__.
 
-The __compiler__ takes a `Core`-language program and translates
-it into a form suitable for execution by the machine interpreter.
+1. The __compiler__ takes a `Core`-language program and translates
+it into a form suitable for execution by the __machine interpreter__.
 
-The __machine interpreter__ simulates the execution of the
+2. The __machine interpreter__ simulates the execution of the
 compiled program and modeled as a __state transition system__.
 
 ## Notes
