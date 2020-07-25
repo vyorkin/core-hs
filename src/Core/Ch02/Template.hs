@@ -177,7 +177,7 @@ step state@(stack, _, heap, _, _) =
   where
     dispatch (NNum n) = stepNum state n
     dispatch (NAp a1 a2) = stepAp state a1 a2
-    dispatch (NSupercomb name args body) = stepSupercomb state name args body
+    dispatch (NSupercomb name argNames body) = stepSupercomb state name argNames body
 
 -- | If there is a number at the end of a spine then
 -- it means that we're trying to apply something to a number.
@@ -192,21 +192,31 @@ stepAp (stack, dump, heap, globals, stats) a1 _ =
 
 -- | Supercombinator reduction.
 stepSupercomb :: State -> Name -> [Name] -> CoreExpr -> State
-stepSupercomb (stack, dump, heap, globals, stats) name args body =
+stepSupercomb (stack, dump, heap, globals, stats) name argNames body =
   (stack'', dump, heap', globals, stats)
   where
-    stack'  = drop (length (name : args)) stack
+    -- Current stack consist of a supercombinator
+    -- on top of a stack of application nodes
+    stack'  = drop (length (name : argNames)) stack
+    -- So we replace a supercombinator and
+    -- its application nodes with the result (address)
     stack'' = resAddr : stack'
+    -- Instantiate the body of the supercombinator
+    -- and get back modified heap and address of result node
     (heap', resAddr) = inst heap env body
 
     env :: [(Name, Addr)]
     env = bindings ++ globals
 
     bindings :: [(Name, Addr)]
-    bindings = zip args addrs
+    bindings = zip argNames addrs
 
     addrs :: [Addr]
-    addrs = pullAddr . Heap.lookup heap <$> tail stack
+    addrs =
+      -- List formed from the argument of each
+      -- of the application nodes on the stack
+      let args = tail stack
+       in pullAddr . Heap.lookup heap <$> args
 
     pullAddr (NAp _ addr) = addr
     pullAddr node = error $ "Not an application node: " <> show node
