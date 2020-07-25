@@ -19,7 +19,7 @@ ppStates ss = vcat $ (ppState <$> ss) <> [ppStats (last ss)]
 ppStats :: State -> Doc AnsiStyle
 ppStats (_, _, _, _, stats) =
       "Stats:"
-  <+> nest 1 hardline
+   <> nest 1 hardline
   <+> "Total number of steps:"
   <+> pretty (getSteps stats)
 

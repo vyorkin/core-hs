@@ -1,0 +1,3 @@
+W x y = x y y
+
+main = W S K 42

@@ -1,0 +1,29 @@
+2 : NSupercomb main
+14 : NAp 12 13
+12 : NAp 11 4
+14 : NAp 12 13
+11 : NAp 1 6
+12 : NAp 11 4
+14 : NAp 12 13
+1 : NSupercomb W
+11 : NAp 1 6
+12 : NAp 11 4
+14 : NAp 12 13
+16 : NAp 15 4
+14 : NAp 12 13
+15 : NAp 6 4
+16 : NAp 15 4
+14 : NAp 12 13
+6 : NSupercomb S
+15 : NAp 6 4
+16 : NAp 15 4
+14 : NAp 12 13
+19 : NAp 17 18
+17 : NAp 4 13
+19 : NAp 17 18
+4 : NSupercomb K
+17 : NAp 4 13
+19 : NAp 17 18
+13 : NNum 42
+Stats:
+  Total number of steps: 11
