@@ -1,28 +1,38 @@
-1 : NSupercomb main
-14 : NAp 12 13
-12 : NAp 11 2
-14 : NAp 12 13
-11 : NAp 10 2
-12 : NAp 11 2
-14 : NAp 12 13
-10 : NAp 2 2
-11 : NAp 10 2
-12 : NAp 11 2
-14 : NAp 12 13
-2 : NSupercomb I
-10 : NAp 2 2
-11 : NAp 10 2
-12 : NAp 11 2
-14 : NAp 12 13
-2 : NSupercomb I
-11 : NAp 10 2
-12 : NAp 11 2
-14 : NAp 12 13
-2 : NSupercomb I
-12 : NAp 11 2
-14 : NAp 12 13
-2 : NSupercomb I
-14 : NAp 12 13
-13 : NNum 8
+1    : NSupercomb main
+
+14   : NAp 12 13
+
+12   : NAp 11 2
+14   : NAp 12 13
+
+11   : NAp 10 2
+12   : NAp 11 2
+14   : NAp 12 13
+
+10   : NAp 2 2
+11   : NAp 10 2
+12   : NAp 11 2
+14   : NAp 12 13
+
+2    : NSupercomb I
+10   : NAp 2 2
+11   : NAp 10 2
+12   : NAp 11 2
+14   : NAp 12 13
+
+2    : NSupercomb I
+11   : NAp 10 2
+12   : NAp 11 2
+14   : NAp 12 13
+
+2    : NSupercomb I
+12   : NAp 11 2
+14   : NAp 12 13
+
+2    : NSupercomb I
+14   : NAp 12 13
+
+13   : NNum 8
+
 Stats:
   Total number of steps: 9

@@ -23,7 +23,7 @@ without losing efficiency.
 * Chapter 3 – G-machine
 * Chapter 4 – Three instruction machine (TIM)
 * Chapter 5 – Parallel G-machine
-* Chapter 6 - Lambda lifter
+* Chapter 6 – Lambda lifter
 
 Each implementation consists of two main parts:
 __compiler__ and the __machine interpreter__.
@@ -51,24 +51,32 @@ main = S K K 3
 Ex 2.4 trace:
 
 ```
-1 : NSupercomb main
-13 : NAp 11 12
-11 : NAp 10 3
-13 : NAp 11 12
-10 : NAp 5 3
-11 : NAp 10 3
-13 : NAp 11 12
-5 : NSupercomb S
-10 : NAp 5 3
-11 : NAp 10 3
-13 : NAp 11 12
-16 : NAp 14 15
-14 : NAp 3 12
-16 : NAp 14 15
-3 : NSupercomb K
-14 : NAp 3 12
-16 : NAp 14 15
-12 : NNum 3
+1    : NSupercomb main
+
+13   : NAp 11 12
+
+11   : NAp 10 3
+13   : NAp 11 12
+
+10   : NAp 5 3
+11   : NAp 10 3
+13   : NAp 11 12
+
+5    : NSupercomb S
+10   : NAp 5 3
+11   : NAp 10 3
+13   : NAp 11 12
+
+16   : NAp 14 15
+
+14   : NAp 3 12
+16   : NAp 14 15
+
+3    : NSupercomb K
+14   : NAp 3 12
+16   : NAp 14 15
+
+12   : NNum 3
 
 Stats:
   Total number of steps: 8

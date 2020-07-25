@@ -1,7 +1,11 @@
-1 : NSupercomb main
-11 : NAp 2 10
-2 : NSupercomb I
-11 : NAp 2 10
-10 : NNum 1
+1    : NSupercomb main
+
+11   : NAp 2 10
+
+2    : NSupercomb I
+11   : NAp 2 10
+
+10   : NNum 1
+
 Stats:
   Total number of steps: 3
